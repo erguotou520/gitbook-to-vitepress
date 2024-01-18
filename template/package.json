@@ -1,0 +1,16 @@
+{
+  "name": "docs",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "A Vitepress project",
+  "scripts": {
+    "dev": "bunx --bun vitepress dev",
+    "build": "bunx --bun vitepress build"
+  },
+  "dependencies": {
+    "vitepress": "^1.0.0-rc.39"
+  },
+  "devDependencies": {
+    "markdown-it-plugin-gitbook": "^0.1.3"
+  }
+}
