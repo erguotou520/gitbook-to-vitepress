@@ -59,8 +59,13 @@ async function run() {
   await ensureFile('.gitignore')
   await ensureFile('package.json')
   await convert(tempDownloadDir)
+  // install
+  execSync('bun install', {
+    cwd: tempDownloadDir,
+    stdio: 'inherit'
+  })
   // run build
-  execSync('bun install && bun run build', {
+  execSync('bun run build', {
     cwd: tempDownloadDir,
     stdio: 'inherit'
   })
