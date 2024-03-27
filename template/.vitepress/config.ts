@@ -453,7 +453,9 @@ export default defineConfig({
 	},
   markdown: {
     config(md) {
-      md.use(markdownItGitbookPlugin)
+      md.use(markdownItGitbookPlugin, {
+        embedUrls: {}
+      })
     }
   }
 });

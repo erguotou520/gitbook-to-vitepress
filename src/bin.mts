@@ -60,16 +60,16 @@ async function run() {
   await ensureFile('package.json')
   await convert(tempDownloadDir)
   // install
-  execSync('bun install', {
-    cwd: tempDownloadDir,
-    stdio: 'inherit'
-  })
-  // run build
-  execSync('bun run build', {
-    cwd: tempDownloadDir,
-    stdio: 'inherit'
-  })
-  console.log(`🥂 Done! The output is in ${join(tempDownloadDir, '.vitepress/dist')}.`)
+  // execSync('bun install', {
+  //   cwd: tempDownloadDir,
+  //   stdio: 'inherit'
+  // })
+  // // run build
+  // execSync('bun run build', {
+  //   cwd: tempDownloadDir,
+  //   stdio: 'inherit'
+  // })
+  // console.log(`🥂 Done! The output is in ${join(tempDownloadDir, '.vitepress/dist')}.`)
 }
 
 run()
