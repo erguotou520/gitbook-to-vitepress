@@ -1,7 +1,7 @@
 import md, { type Link, type Text } from 'markdown-ast'
 import { type DefaultTheme } from 'vitepress'
 import { Block, MethodDeclaration, Project, SyntaxKind } from "ts-morph"
-import { join, resolve } from 'node:path'
+import { join } from 'node:path'
 import { rename, unlink } from 'node:fs/promises'
 import { fetchEmbedIframeUrl, getEmbedUrlMap } from './iframe.mts'
 
@@ -29,7 +29,7 @@ async function saveConfigFile(sidebarData: DefaultTheme.SidebarItem[], embedUrlM
   elements?.addElements(sidebarData.map(item => JSON.stringify(item)))
 
   // markdownItGitbookPlugin options with embedUrls
-  const markdownConfig = objectLiteral.getPropertyOrThrow('markdown')
+  // const markdownConfig = objectLiteral.getPropertyOrThrow('markdown')
 
   // 使用ast 修改下面的结构体里的embedUrls
   // markdown: {
@@ -39,32 +39,33 @@ async function saveConfigFile(sidebarData: DefaultTheme.SidebarItem[], embedUrlM
   //     })
   //   }
   // }
-  const mdProperties = markdownConfig.getFirstDescendantByKind(SyntaxKind.ObjectLiteralExpression)
-  const mdConfig = mdProperties!.getPropertyOrThrow('config') as MethodDeclaration
+  // const mdProperties = markdownConfig.getFirstDescendantByKind(SyntaxKind.ObjectLiteralExpression)
+  // const mdConfig = mdProperties!.getPropertyOrThrow('config') as MethodDeclaration
   // mdConfig is MethodDeclaration
-  const mdConfigBody = mdConfig.getBodyOrThrow() as Block
-  mdConfig
-  // const mdConfigValue = mdConfig.getFirstDescendantByKind(SyntaxKind.ArrowFunction)
-  // const mdConfigBody = mdConfigValue!.getFirstDescendantByKind(SyntaxKind.Block)
-  // const mdConfigBodyStatements = mdConfigBody!.getStatements()
-  // const mdConfigBodyStatement = mdConfigBodyStatements[0]
-  debugger
-
-
+  // const mdConfigBody = mdConfig.getBodyOrThrow() as Block
   // save
   await project.save()
+  const configFile = Bun.file(vitepressConfigFilePath)
+
+  const configContent = await configFile.text()
+  const newConfigContent = configContent.replace(/embedUrls: {}/g, `embedUrls: ${JSON.stringify(embedUrlMap, null, 2)}`)
+  await Bun.write(vitepressConfigFilePath, newConfigContent)
 }
 
 async function scanDocs(sourceDir: string) {
-  const blob = new Bun.Glob(resolve(sourceDir, '**/*.md'))
-  debugger
-  for await (const file of blob.scan('.')) {
+  const blob = new Bun.Glob('**/*.md')
+  for await (const path of blob.scan({ cwd: sourceDir })) {
+    const file = Bun.file(join(sourceDir, path))
+    const content = await file.text()
     // 匹配下面的规则
     // {% embed url="https://www.bilibili.com/video/BV1w24y1U7fx" %}
-    const matched = file.match(/{%\s*embed\s+url="([^"]+)"\s*%}/)
-    console.log(matched)
+    const matched = content.matchAll(/{%\s*embed\s+url="([^"]+)"\s*%}/g)
     if (matched) {
-      fetchEmbedIframeUrl(matched[1])
+      const urls = []
+      for (const match of matched) {
+        urls.push(match[1])
+      }
+      await Promise.all(urls.map(fetchEmbedIframeUrl))
     }
   }
 }
