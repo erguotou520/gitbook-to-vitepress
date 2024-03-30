@@ -1,10 +1,12 @@
-const urlMap: Record<string, string> = {
-}
+const urlMap: Record<string, string> = {}
 
 export async function fetchEmbedIframeUrl(url: string) {
-  if (urlMap[url]) return urlMap[url]
   try {
-    const resp = await fetch(`http://iframe.ly/api/oembed?url=${url}&api_key=${process.env["IFRAMELY_API_KEY"]}`)
+    if (urlMap[url]) {
+      return urlMap[url]
+    }
+    // with cf worker cache
+    const resp = await fetch(`https://api.embed.fireboom.io?api=1&url=${url}&api_key=${process.env["IFRAMELY_API_KEY"]}`)
     const data = await resp.json() as { html: string }
     console.log(data.html)
     urlMap[url] = data.html

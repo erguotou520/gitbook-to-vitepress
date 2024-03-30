@@ -48,7 +48,7 @@ async function saveConfigFile(sidebarData: DefaultTheme.SidebarItem[], embedUrlM
   const configFile = Bun.file(vitepressConfigFilePath)
 
   const configContent = await configFile.text()
-  const newConfigContent = configContent.replace(/embedUrls: {}/g, `embedUrls: ${JSON.stringify(embedUrlMap, null, 2)}`)
+  const newConfigContent = configContent.replace(/embedUrls: {\s*}/g, `embedUrls: ${JSON.stringify(embedUrlMap, null, 10)}`)
   await Bun.write(vitepressConfigFilePath, newConfigContent)
 }
 
